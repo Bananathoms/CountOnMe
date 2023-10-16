@@ -50,16 +50,33 @@ class ViewController: UIViewController {
             textView.text = ""
         }
         
+        // Vérifiez s'il s'agit d'un bouton décimal
+        if numberText == "." {
+            // Assurez-vous que l'utilisateur n'ajoute qu'un seul point décimal
+            if let lastElement = elements.last, lastElement.contains(".") {
+                return
+            }
+        }
+        
         textView.text.append(numberText)
+    }
+    
+    @IBAction func tappedClearButton(_ sender: UIButton) {
+        // Réinitialisez l'affichage à zéro
+        textView.text = ""
+    }
+    
+    @IBAction func tappedBackButton(_ sender: UIButton) {
+        if !textView.text.isEmpty {
+            textView.text.removeLast()
+        }
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
         if canAddOperator {
             textView.text.append(" + ")
         } else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
+            showAlert(message: "Un operateur est déja mis !")
         }
     }
     
@@ -67,47 +84,84 @@ class ViewController: UIViewController {
         if canAddOperator {
             textView.text.append(" - ")
         } else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Un operateur est déja mis !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            self.present(alertVC, animated: true, completion: nil)
+            showAlert(message: "Un operateur est déja mis !")
         }
     }
+    
+    @IBAction func tappedMultiplicationButton(_ sender: UIButton) {
+        if canAddOperator {
+            textView.text.append(" * ")
+        } else {
+            showAlert(message: "Un operateur est déja mis !")
+        }
+    }
+
+    @IBAction func tappedDivisionButton(_ sender: UIButton) {
+        if canAddOperator {
+            textView.text.append(" / ")
+        } else {
+            showAlert(message: "Un operateur est déja mis !")
+        }
+    }
+
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
         guard expressionIsCorrect else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Entrez une expression correcte !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            return self.present(alertVC, animated: true, completion: nil)
+            showAlert(message: "Entrez une expression correcte !")
+            return
         }
-        
+
         guard expressionHaveEnoughElement else {
-            let alertVC = UIAlertController(title: "Zéro!", message: "Démarrez un nouveau calcul !", preferredStyle: .alert)
-            alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-            return self.present(alertVC, animated: true, completion: nil)
+            showAlert(message: "Démarrez un nouveau calcul !")
+            return
         }
-        
-        // Create local copy of operations
+
         var operationsToReduce = elements
-        
-        // Iterate over operations while an operand still here
+
         while operationsToReduce.count > 1 {
-            let left = Int(operationsToReduce[0])!
-            let operand = operationsToReduce[1]
-            let right = Int(operationsToReduce[2])!
-            
-            let result: Int
-            switch operand {
-            case "+": result = left + right
-            case "-": result = left - right
-            default: fatalError("Unknown operator !")
+            if let left = Double(operationsToReduce[0]), let right = Double(operationsToReduce[2]) {
+                let operand = operationsToReduce[1]
+                var result: Double?
+
+                switch operand {
+                case "+": result = left + right
+                case "-": result = left - right
+                case "*": result = left * right
+                case "/":
+                    if right != 0 {
+                        result = left / right
+                    } else {
+                        showAlert(message: "Division par zéro !")
+                        return
+                    }
+                default:
+                    showAlert(message: "Opérateur inconnu !")
+                    return
+                }
+
+                if let result = result {
+                    operationsToReduce = Array(operationsToReduce.dropFirst(3))
+                    operationsToReduce.insert("\(result)", at: 0)
+                } else {
+                    showAlert(message: "Erreur de calcul !")
+                    return
+                }
+            } else {
+                showAlert(message: "Opérandes invalides !")
+                return
             }
-            
-            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            operationsToReduce.insert("\(result)", at: 0)
         }
-        
+
         textView.text.append(" = \(operationsToReduce.first!)")
     }
 
+
+    func showAlert(message: String) {
+        let alertVC = UIAlertController(title: "Erreur", message: message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        present(alertVC, animated: true, completion: nil)
+    }
+
+    
 }
 
