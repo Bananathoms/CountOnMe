@@ -16,17 +16,24 @@ class ViewController: UIViewController {
         return textView.text.split(separator: " ").map { "\($0)" }
     }
     
-    // Error check computed variables
+    /// check if last element is not an operand
     var expressionIsCorrect: Bool {
-        return elements.last != "+" && elements.last != "-"
+        if let lastElement = elements.last {
+            return lastElement != "+" && lastElement != "-" && lastElement != "*" && lastElement != "/"
+        }
+        return true
     }
     
     var expressionHaveEnoughElement: Bool {
         return elements.count >= 3
     }
     
+    
     var canAddOperator: Bool {
-        return elements.last != "+" && elements.last != "-"
+        if let lastElement = elements.last {
+            return lastElement != "+" && lastElement != "-" && lastElement != "*" && lastElement != "/"
+        }
+        return false
     }
     
     var expressionHaveResult: Bool {
@@ -39,7 +46,6 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    
     // View actions
     @IBAction func tappedNumberButton(_ sender: UIButton) {
         guard let numberText = sender.title(for: .normal) else {
@@ -50,19 +56,17 @@ class ViewController: UIViewController {
             textView.text = ""
         }
         
-        // Vérifiez s'il s'agit d'un bouton décimal
+        /// Decimal Button verification
         if numberText == "." {
-            // Assurez-vous que l'utilisateur n'ajoute qu'un seul point décimal
+            /// Security to only have one .
             if let lastElement = elements.last, lastElement.contains(".") {
                 return
             }
         }
-        
         textView.text.append(numberText)
     }
     
     @IBAction func tappedClearButton(_ sender: UIButton) {
-        // Réinitialisez l'affichage à zéro
         textView.text = ""
     }
     
@@ -103,7 +107,6 @@ class ViewController: UIViewController {
             showAlert(message: "Un operateur est déja mis !")
         }
     }
-
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
         guard expressionIsCorrect else {
