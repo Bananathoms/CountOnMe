@@ -119,24 +119,20 @@ class ViewController: UIViewController {
             return
         }
 
-        // Séparez les opérations de multiplication et de division des opérations d'addition et de soustraction
         var operationsToReduce = elements
+
+        /// multiplication and division
         while operationsToReduce.contains("*") || operationsToReduce.contains("/") {
             if let index = operationsToReduce.firstIndex(where: { $0 == "*" || $0 == "/" }) {
                 let left = Double(operationsToReduce[index - 1])!
                 let operand = operationsToReduce[index]
                 let right = Double(operationsToReduce[index + 1])!
-                let result: Double
 
+                let model = CalculatorModel()
+                let result: Double
                 switch operand {
-                case "*": result = left * right
-                case "/":
-                    if right != 0 {
-                        result = left / right
-                    } else {
-                        showAlert(message: "Division par zéro !")
-                        return
-                    }
+                case "*": result = model.multiply(left, right)
+                case "/": result = model.divide(left, right)
                 default:
                     fatalError("Opérateur inconnu !")
                 }
@@ -147,15 +143,17 @@ class ViewController: UIViewController {
             }
         }
 
+        /// Addition and substraction
         while operationsToReduce.count > 1 {
             let left = Double(operationsToReduce[0])!
             let operand = operationsToReduce[1]
             let right = Double(operationsToReduce[2])!
-            let result: Double
 
+            let model = CalculatorModel()
+            let result: Double
             switch operand {
-            case "+": result = left + right
-            case "-": result = left - right
+            case "+": result = model.add(left, right)
+            case "-": result = model.subtract(left, right)
             default:
                 fatalError("Opérateur inconnu !")
             }
@@ -166,8 +164,6 @@ class ViewController: UIViewController {
 
         textView.text.append(" = \(operationsToReduce.first!)")
     }
-
-
 
     func showAlert(message: String) {
         let alertVC = UIAlertController(title: "Erreur", message: message, preferredStyle: .alert)
