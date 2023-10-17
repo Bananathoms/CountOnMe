@@ -119,16 +119,16 @@ class ViewController: UIViewController {
             return
         }
 
+        // Séparez les opérations de multiplication et de division des opérations d'addition et de soustraction
         var operationsToReduce = elements
-
-        while operationsToReduce.count > 1 {
-            if let left = Double(operationsToReduce[0]), let right = Double(operationsToReduce[2]) {
-                let operand = operationsToReduce[1]
-                var result: Double?
+        while operationsToReduce.contains("*") || operationsToReduce.contains("/") {
+            if let index = operationsToReduce.firstIndex(where: { $0 == "*" || $0 == "/" }) {
+                let left = Double(operationsToReduce[index - 1])!
+                let operand = operationsToReduce[index]
+                let right = Double(operationsToReduce[index + 1])!
+                let result: Double
 
                 switch operand {
-                case "+": result = left + right
-                case "-": result = left - right
                 case "*": result = left * right
                 case "/":
                     if right != 0 {
@@ -138,25 +138,35 @@ class ViewController: UIViewController {
                         return
                     }
                 default:
-                    showAlert(message: "Opérateur inconnu !")
-                    return
+                    fatalError("Opérateur inconnu !")
                 }
 
-                if let result = result {
-                    operationsToReduce = Array(operationsToReduce.dropFirst(3))
-                    operationsToReduce.insert("\(result)", at: 0)
-                } else {
-                    showAlert(message: "Erreur de calcul !")
-                    return
-                }
-            } else {
-                showAlert(message: "Opérandes invalides !")
-                return
+                operationsToReduce[index - 1] = String(result)
+                operationsToReduce.remove(at: index)
+                operationsToReduce.remove(at: index)
             }
+        }
+
+        while operationsToReduce.count > 1 {
+            let left = Double(operationsToReduce[0])!
+            let operand = operationsToReduce[1]
+            let right = Double(operationsToReduce[2])!
+            let result: Double
+
+            switch operand {
+            case "+": result = left + right
+            case "-": result = left - right
+            default:
+                fatalError("Opérateur inconnu !")
+            }
+
+            operationsToReduce = Array(operationsToReduce.dropFirst(3))
+            operationsToReduce.insert(String(result), at: 0)
         }
 
         textView.text.append(" = \(operationsToReduce.first!)")
     }
+
 
 
     func showAlert(message: String) {
