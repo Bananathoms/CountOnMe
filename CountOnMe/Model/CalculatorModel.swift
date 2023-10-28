@@ -66,5 +66,56 @@ class CalculatorModel {
         }
     }
     
+    func calculateExpression(expression: String) -> String {
+        elements = expression.split(separator: " ").map { "\($0)" }
+
+        // Effectuer le calcul en respectant la priorité des opérations
+        while elements.contains("*") || elements.contains("/") {
+            if let index = elements.firstIndex(where: { $0 == "*" || $0 == "/" }) {
+                let left = Double(elements[index - 1])!
+                let operand = elements[index]
+                let right = Double(elements[index + 1])!
+
+                let result: Double
+                switch operand {
+                case "*":
+                    result = multiply(left, right)
+                case "/":
+                    if right != 0 {
+                        result = divide(left, right)
+                    } else {
+                        return "Erreur : Division par zéro"
+                    }
+                default:
+                    fatalError("Opérateur inconnu !")
+                }
+
+                elements[index - 1] = String(result)
+                elements.remove(at: index)
+                elements.remove(at: index)
+            }
+        }
+
+        while elements.count > 1 {
+            let left = Double(elements[0])!
+            let operand = elements[1]
+            let right = Double(elements[2])!
+
+            let result: Double
+            switch operand {
+            case "+":
+                result = add(left, right)
+            case "-":
+                result = subtract(left, right)
+            default:
+                fatalError("Opérateur inconnu !")
+            }
+
+            elements = Array(elements.dropFirst(3))
+            elements.insert(String(result), at: 0)
+        }
+
+        return "= \(elements.first ?? "Erreur")"
+    }
     
 }

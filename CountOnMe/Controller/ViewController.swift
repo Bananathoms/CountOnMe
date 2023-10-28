@@ -91,6 +91,12 @@ class ViewController: UIViewController {
         let isCorrect = self.calculatorModel.isExpressionCorrect(elements: self.elements)
         let haveEnoughElements = self.calculatorModel.doesExpressionHaveEnoughElements(elements: self.elements)
         let hasResult = self.calculatorModel.doesExpressionHaveResult(text: self.textView.text)
+        
+        guard let expression = self.textView.text else {
+            return
+        }
+        
+        let result = self.calculatorModel.calculateExpression(expression: expression)
 
         if hasResult {
             self.textView.text = ""
@@ -105,51 +111,8 @@ class ViewController: UIViewController {
             self.calculatorModel.showAlert(message: "Démarrez un nouveau calcul !")
             return
         }
-
-        var operationsToReduce = self.elements
-
-        /// multiplication and division
-        while operationsToReduce.contains("*") || operationsToReduce.contains("/") {
-            if let index = operationsToReduce.firstIndex(where: { $0 == "*" || $0 == "/" }) {
-                let left = Double(operationsToReduce[index - 1])!
-                let operand = operationsToReduce[index]
-                let right = Double(operationsToReduce[index + 1])!
-
-                let model = CalculatorModel()
-                let result: Double
-                switch operand {
-                case "*": result = model.multiply(left, right)
-                case "/": result = model.divide(left, right)
-                default:
-                    fatalError("Opérateur inconnu !")
-                }
-
-                operationsToReduce[index - 1] = String(result)
-                operationsToReduce.remove(at: index)
-                operationsToReduce.remove(at: index)
-            }
-        }
-
-        /// Addition and substraction
-        while operationsToReduce.count > 1 {
-            let left = Double(operationsToReduce[0])!
-            let operand = operationsToReduce[1]
-            let right = Double(operationsToReduce[2])!
-
-            let model = CalculatorModel()
-            let result: Double
-            switch operand {
-            case "+": result = model.add(left, right)
-            case "-": result = model.subtract(left, right)
-            default:
-                fatalError("Opérateur inconnu !")
-            }
-
-            operationsToReduce = Array(operationsToReduce.dropFirst(3))
-            operationsToReduce.insert(String(result), at: 0)
-        }
-
-        self.textView.text.append(" = \(operationsToReduce.first!)")
+        
+        self.textView.text = result
     }
 }
 
