@@ -67,22 +67,21 @@ class CalculatorModel {
     }
     
     func calculateExpression(expression: String) -> String {
-        elements = expression.split(separator: " ").map { "\($0)" }
+        self.elements = expression.split(separator: " ").map { "\($0)" }
 
-        // Effectuer le calcul en respectant la priorité des opérations
-        while elements.contains("*") || elements.contains("/") {
-            if let index = elements.firstIndex(where: { $0 == "*" || $0 == "/" }) {
-                let left = Double(elements[index - 1])!
-                let operand = elements[index]
-                let right = Double(elements[index + 1])!
+        while self.elements.contains("*") || self.elements.contains("/") {
+            if let index = self.elements.firstIndex(where: { $0 == "*" || $0 == "/" }) {
+                let left = Double(self.elements[index - 1])!
+                let operand = self.elements[index]
+                let right = Double(self.elements[index + 1])!
 
                 let result: Double
                 switch operand {
                 case "*":
-                    result = multiply(left, right)
+                    result = self.multiply(left, right)
                 case "/":
                     if right != 0 {
-                        result = divide(left, right)
+                        result = self.divide(left, right)
                     } else {
                         return "Erreur : Division par zéro"
                     }
@@ -90,32 +89,32 @@ class CalculatorModel {
                     fatalError("Opérateur inconnu !")
                 }
 
-                elements[index - 1] = String(result)
-                elements.remove(at: index)
-                elements.remove(at: index)
+                self.elements[index - 1] = String(result)
+                self.elements.remove(at: index)
+                self.elements.remove(at: index)
             }
         }
 
-        while elements.count > 1 {
-            let left = Double(elements[0])!
-            let operand = elements[1]
-            let right = Double(elements[2])!
+        while self.elements.count > 1 {
+            let left = Double(self.elements[0])!
+            let operand = self.elements[1]
+            let right = Double(self.elements[2])!
 
             let result: Double
             switch operand {
             case "+":
-                result = add(left, right)
+                result = self.add(left, right)
             case "-":
-                result = subtract(left, right)
+                result = self.subtract(left, right)
             default:
                 fatalError("Opérateur inconnu !")
             }
 
-            elements = Array(elements.dropFirst(3))
-            elements.insert(String(result), at: 0)
+            self.elements = Array(self.elements.dropFirst(3))
+            self.elements.insert(String(result), at: 0)
         }
 
-        return "= \(elements.first ?? "Erreur")"
+        return "= \(self.elements.first ?? "Erreur")"
     }
     
 }
