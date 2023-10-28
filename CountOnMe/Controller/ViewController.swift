@@ -16,31 +16,7 @@ class ViewController: UIViewController {
     @IBOutlet var numberButtons: [UIButton]!
     
     var elements: [String] {
-        return textView.text.split(separator: " ").map { "\($0)" }
-    }
-    
-    /// check if last element is not an operand
-    var expressionIsCorrect: Bool {
-        if let lastElement = elements.last {
-            return lastElement != "+" && lastElement != "-" && lastElement != "*" && lastElement != "/"
-        }
-        return true
-    }
-    
-    var expressionHaveEnoughElement: Bool {
-        return elements.count >= 3
-    }
-    
-    
-    var canAddOperator: Bool {
-        if let lastElement = elements.last {
-            return lastElement != "+" && lastElement != "-" && lastElement != "*" && lastElement != "/"
-        }
-        return false
-    }
-    
-    var expressionHaveResult: Bool {
-        return textView.text.firstIndex(of: "=") != nil
+        return self.textView.text.split(separator: " ").map { "\($0)" }
     }
     
     // View Life cycles
@@ -55,74 +31,82 @@ class ViewController: UIViewController {
             return
         }
         
-        if expressionHaveResult {
-            textView.text = ""
+        if self.calculatorModel.doesExpressionHaveResult(text: textView.text) {
+            self.textView.text = ""
         }
         
         /// Decimal Button verification
         if numberText == "." {
             /// Security to only have one .
-            if let lastElement = elements.last, lastElement.contains(".") {
+            if let lastElement = self.elements.last, lastElement.contains(".") {
                 return
             }
         }
-        textView.text.append(numberText)
+        self.textView.text.append(numberText)
     }
     
     @IBAction func tappedClearButton(_ sender: UIButton) {
-        textView.text = ""
+        self.textView.text = ""
     }
     
     @IBAction func tappedBackButton(_ sender: UIButton) {
-        if !textView.text.isEmpty {
-            textView.text.removeLast()
+        if !self.textView.text.isEmpty {
+            self.textView.text.removeLast()
         }
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        if canAddOperator {
-            textView.text.append(" + ")
+        if self.calculatorModel.canAddOperator(elements: self.elements) {
+            self.textView.text.append(" + ")
         } else {
             self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
         }
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        if canAddOperator {
-            textView.text.append(" - ")
+        if self.calculatorModel.canAddOperator(elements: self.elements) {
+            self.textView.text.append(" - ")
         } else {
             self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
         }
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: UIButton) {
-        if canAddOperator {
-            textView.text.append(" * ")
+        if self.calculatorModel.canAddOperator(elements: self.elements) {
+            self.textView.text.append(" * ")
         } else {
             self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
         }
     }
 
     @IBAction func tappedDivisionButton(_ sender: UIButton) {
-        if canAddOperator {
-            textView.text.append(" / ")
+        if self.calculatorModel.canAddOperator(elements: self.elements) {
+            self.textView.text.append(" / ")
         } else {
             self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
         }
     }
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-        guard expressionIsCorrect else {
+        let isCorrect = self.calculatorModel.isExpressionCorrect(elements: self.elements)
+        let haveEnoughElements = self.calculatorModel.doesExpressionHaveEnoughElements(elements: self.elements)
+        let hasResult = self.calculatorModel.doesExpressionHaveResult(text: self.textView.text)
+
+        if hasResult {
+            self.textView.text = ""
+        }
+
+        guard isCorrect else {
             self.calculatorModel.showAlert(message: "Entrez une expression correcte !")
             return
         }
 
-        guard expressionHaveEnoughElement else {
+        guard haveEnoughElements else {
             self.calculatorModel.showAlert(message: "Démarrez un nouveau calcul !")
             return
         }
 
-        var operationsToReduce = elements
+        var operationsToReduce = self.elements
 
         /// multiplication and division
         while operationsToReduce.contains("*") || operationsToReduce.contains("/") {
@@ -165,7 +149,7 @@ class ViewController: UIViewController {
             operationsToReduce.insert(String(result), at: 0)
         }
 
-        textView.text.append(" = \(operationsToReduce.first!)")
+        self.textView.text.append(" = \(operationsToReduce.first!)")
     }
 }
 
