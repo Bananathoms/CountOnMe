@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "103A3FCB-F209-4568-9BEF-221F627F840C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:CountOnMe.xcodeproj",
+      "identifier" : "1FA43BCE224E569900F565CB",
+      "name" : "CountOnMe"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:CountOnMe.xcodeproj",
+        "identifier" : "1FA43BE2224E569A00F565CB",
+        "name" : "CountOnMeTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -9,6 +9,9 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    let calculatorModel = CalculatorModel()
+    
     @IBOutlet weak var textView: UITextView!
     @IBOutlet var numberButtons: [UIButton]!
     
@@ -43,7 +46,7 @@ class ViewController: UIViewController {
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        self.calculatorModel.viewController = self
     }
     
     // View actions
@@ -80,7 +83,7 @@ class ViewController: UIViewController {
         if canAddOperator {
             textView.text.append(" + ")
         } else {
-            showAlert(message: "Un operateur est déja mis !")
+            self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
         }
     }
     
@@ -88,7 +91,7 @@ class ViewController: UIViewController {
         if canAddOperator {
             textView.text.append(" - ")
         } else {
-            showAlert(message: "Un operateur est déja mis !")
+            self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
         }
     }
     
@@ -96,7 +99,7 @@ class ViewController: UIViewController {
         if canAddOperator {
             textView.text.append(" * ")
         } else {
-            showAlert(message: "Un operateur est déja mis !")
+            self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
         }
     }
 
@@ -104,18 +107,18 @@ class ViewController: UIViewController {
         if canAddOperator {
             textView.text.append(" / ")
         } else {
-            showAlert(message: "Un operateur est déja mis !")
+            self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
         }
     }
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
         guard expressionIsCorrect else {
-            showAlert(message: "Entrez une expression correcte !")
+            self.calculatorModel.showAlert(message: "Entrez une expression correcte !")
             return
         }
 
         guard expressionHaveEnoughElement else {
-            showAlert(message: "Démarrez un nouveau calcul !")
+            self.calculatorModel.showAlert(message: "Démarrez un nouveau calcul !")
             return
         }
 
@@ -164,13 +167,5 @@ class ViewController: UIViewController {
 
         textView.text.append(" = \(operationsToReduce.first!)")
     }
-
-    func showAlert(message: String) {
-        let alertVC = UIAlertController(title: "Erreur", message: message, preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        present(alertVC, animated: true, completion: nil)
-    }
-
-    
 }
 

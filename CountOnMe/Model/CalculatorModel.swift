@@ -7,8 +7,22 @@
 //
 
 import Foundation
+import UIKit
 
 class CalculatorModel {
+    
+    var viewController: UIViewController? 
+
+    func showAlert(message: String) {
+        guard let viewController = viewController else {
+            return
+        }
+
+        let alertVC = UIAlertController(title: "Erreur", message: message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        viewController.present(alertVC, animated: true, completion: nil)
+    }
+    
     func add(_ left: Double, _ right: Double) -> Double {
         return left + right
     }
@@ -28,4 +42,6 @@ class CalculatorModel {
             return Double.nan
         }
     }
+    
+    
 }
