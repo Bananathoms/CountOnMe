@@ -10,18 +10,46 @@ import XCTest
 @testable import CountOnMe
 
 class SimpleCalcTests: XCTestCase {
+    
+    class MockViewController: UIViewController {
+        var presentedAlert: UIAlertController?
+        
+        override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+            presentedAlert = viewControllerToPresent as? UIAlertController
+        }
+    }
+    
     var calculatorModel: CalculatorModel!
     
     override func setUp() {
         super.setUp()
         self.calculatorModel = CalculatorModel()
     }
-
+    
     override func tearDown() {
         self.calculatorModel = nil
         super.tearDown()
     }
-
+    
+    func testShowAlert() {
+        let mockViewController = MockViewController()
+        
+        self.calculatorModel.viewController = mockViewController
+        
+        let message = "This is a test message."
+        self.calculatorModel.showAlert(message: message)
+        
+        XCTAssertNotNil(mockViewController.presentedAlert, "An alert should have been presented")
+        XCTAssertEqual(mockViewController.presentedAlert?.message, message, "Alert message should match")
+        XCTAssertEqual(mockViewController.presentedAlert?.title, "Erreur", "Alert title should match")
+    }
+    
+    func testShowAlertWithoutViewController() {
+        let message = "This is a test message."
+        self.calculatorModel.showAlert(message: message)
+        XCTAssertNil(calculatorModel.viewController, "No alert should be presented when viewController is not set")
+    }
+    
     func testAddition() {
         let result = self.calculatorModel.add(3.0, 4.0)
         XCTAssertEqual(result, 7.0, "L'addition de 3.0 et 4.0 devrait être égale à 7.0")
@@ -51,17 +79,22 @@ class SimpleCalcTests: XCTestCase {
         let elements = ["5", "+", "3"]
         XCTAssertTrue(self.calculatorModel.isExpressionCorrect(elements: elements))
     }
-
+    
     func testIsExpressionCorrect_InvalidExpression() {
         let elements = ["5", "+", "+"]
         XCTAssertFalse(self.calculatorModel.isExpressionCorrect(elements: elements))
     }
-
+    
+    func testIsExpressionCorrect_WithEmptyElements() {
+        let elements: [String] = []
+        XCTAssertTrue(self.calculatorModel.isExpressionCorrect(elements: elements))
+    }
+    
     func testDoesExpressionHaveEnoughElements_EnoughElements() {
         let elements = ["5", "+", "3", "*", "2"]
         XCTAssertTrue(self.calculatorModel.doesExpressionHaveEnoughElements(elements: elements))
     }
-
+    
     func testDoesExpressionHaveEnoughElements_NotEnoughElements() {
         let elements = ["5", "+"]
         XCTAssertFalse(self.calculatorModel.doesExpressionHaveEnoughElements(elements: elements))
@@ -87,18 +120,18 @@ class SimpleCalcTests: XCTestCase {
         let result = calculatorModel.canAddOperator(elements: elements)
         XCTAssertFalse(result, "Adding an operator when the last element is already an operator should not be allowed")
     }
-
-
+    
+    
     func testCanAddOperator_CannotAdd() {
         let elements = ["5", "+"]
         XCTAssertFalse(self.calculatorModel.canAddOperator(elements: elements))
     }
-
+    
     func testDoesExpressionHaveResult_WithResult() {
         let text = "5 + 3 = 8"
         XCTAssertTrue(self.calculatorModel.doesExpressionHaveResult(text: text))
     }
-
+    
     func testDoesExpressionHaveResult_NoResult() {
         let text = "5 + 3"
         XCTAssertFalse(self.calculatorModel.doesExpressionHaveResult(text: text))
@@ -109,17 +142,23 @@ class SimpleCalcTests: XCTestCase {
         let result = self.calculatorModel.calculateExpression(expression: expression)
         XCTAssertEqual(result, "= 8.0")
     }
-
+    
     func testCalculateExpression_ComplexExpression() {
         let expression = "5 + 3 * 2 - 1"
         let result = self.calculatorModel.calculateExpression(expression: expression)
         XCTAssertEqual(result, "= 10.0")
     }
-
+    
+    func testCalculateExpression_Division() {
+        let expression = "10 / 5"
+        let result = self.calculatorModel.calculateExpression(expression: expression)
+        
+        XCTAssertEqual(result, "= 2.0", "Result should be 2.0 for 10 / 5")
+    }
+    
     func testCalculateExpression_DivisionByZero() {
         let expression = "5 / 0"
         let result = self.calculatorModel.calculateExpression(expression: expression)
         XCTAssertEqual(result, "Erreur : Division par zéro")
     }
-
 }
