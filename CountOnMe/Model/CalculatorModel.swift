@@ -14,6 +14,9 @@ class CalculatorModel {
     var viewController: UIViewController?
     var elements: [String] = []
     
+    /// Checks whether the given expression is correct by verifying that the last element in the expression array is not an operator.
+    /// - Parameter elements: The elements of the expression to be checked.
+    /// - Returns: `true` if the expression is correct; otherwise, it returns `false`.
     func isExpressionCorrect(elements: [String]) -> Bool {
         if let lastElement = elements.last {
             return lastElement != "+" && lastElement != "-" && lastElement != "*" && lastElement != "/"
@@ -21,10 +24,16 @@ class CalculatorModel {
         return true
     }
     
+    /// Checks if the given expression has the minimum required number of elements for a valid mathematical operation.
+    /// - Parameter elements: The elements of the expression to be checked.
+    /// - Returns: `true` if the expression has three or more elements, indicating it has enough for a valid operation; otherwise, it returns `false`.
     func doesExpressionHaveEnoughElements(elements: [String]) -> Bool {
         return elements.count >= 3
     }
     
+    /// Determines whether it's possible to add an operator to the given expression by checking if the last element is not already an operator.
+    /// - Parameter elements: Determines whether it's possible to add an operator to the given expression by checking if the last element is not already an operator.
+    /// - Returns: true` if an operator can be added (the last element is not an operator); otherwise, it returns `false`.
     func canAddOperator(elements: [String]) -> Bool {
         if let lastElement = elements.last {
             return lastElement != "+" && lastElement != "-" && lastElement != "*" && lastElement != "/"
@@ -32,22 +41,45 @@ class CalculatorModel {
         return false
     }
     
+    /// Checks if the given text represents an expression with a calculated result, indicated by the presence of the equal sign ('=').
+    /// - Parameter text: The text to be examined for the presence of the equal sign.
+    /// - Returns: `true` if the text contains an equal sign, signifying the presence of a calculated result; otherwise, it returns `false`.
     func doesExpressionHaveResult(text: String) -> Bool {
         return text.firstIndex(of: "=") != nil
     }
     
+    /// Performs addition of two numbers and returns the result.
+    /// - Parameters:
+    ///   - left: The left operand of the addition operation.
+    ///   - right: The right operand of the addition operation.
+    /// - Returns: The sum of `left` and `right`, as a `Double`.
     func add(_ left: Double, _ right: Double) -> Double {
         return left + right
     }
-
+    
+    /// Performs substraction of two numbers and returns the result.
+    /// - Parameters:
+    ///   - left: The left operand of the substraction operation.
+    ///   - right: The right operand of the substraction operation.
+    /// - Returns: The substract ion of `left` and `right`, as a `Double`.
     func subtract(_ left: Double, _ right: Double) -> Double {
         return left - right
     }
-
+    
+    /// Performs  multiplication of two numbers and returns the result.
+    /// - Parameters:
+    ///   - left: The left operand of the multiplication operation.
+    ///   - right: The right operand of the multiplication operation.
+    /// - Returns: The multiplication of `left` and `right`, as a `Double`.
     func multiply(_ left: Double, _ right: Double) -> Double {
         return left * right
     }
-
+    
+    /// Performs division of two numbers and returns the result.
+    /// - Parameters:
+    ///   - left: The left operand of the division  operation.
+    ///   - right: The right operand of the division  operation.
+    /// - Returns: The division  of `left` and `right`, as a `Double`.
     func divide(_ left: Double, _ right: Double) -> Double {
         if right != 0 {
             return left / right
@@ -56,6 +88,9 @@ class CalculatorModel {
         }
     }
     
+    /// Parses and evaluates the given mathematical expression and returns the result as a formatted string.
+    /// - Parameter expression: The mathematical expression to be calculated, containing numbers and operators.
+    /// - Returns: A formatted string representing the result of the expression, including an equal sign ('=') at the beginning, or an error message if the expression is invalid or contains division by zero.
     func calculateExpression(expression: String) -> String {
         self.elements = expression.split(separator: " ").map { "\($0)" }
 
