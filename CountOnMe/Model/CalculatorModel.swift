@@ -13,16 +13,6 @@ class CalculatorModel {
     
     var viewController: UIViewController?
     var elements: [String] = []
-
-    func showAlert(message: String) {
-        guard let viewController = self.viewController else {
-            return
-        }
-
-        let alertVC = UIAlertController(title: "Erreur", message: message, preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        viewController.present(alertVC, animated: true, completion: nil)
-    }
     
     func isExpressionCorrect(elements: [String]) -> Bool {
         if let lastElement = elements.last {
@@ -76,17 +66,17 @@ class CalculatorModel {
                 let right = Double(self.elements[index + 1])!
 
                 let result: Double
-                switch operand {
-                case "*":
+
+                if operand == "*" {
                     result = self.multiply(left, right)
-                case "/":
+                } else if operand == "/" {
                     if right != 0 {
                         result = self.divide(left, right)
                     } else {
                         return "Erreur : Division par zéro"
                     }
-                default:
-                    fatalError("Opérateur inconnu !")
+                } else {
+                    return "Opérateur inconnu !"
                 }
 
                 self.elements[index - 1] = String(result)
@@ -101,20 +91,18 @@ class CalculatorModel {
             let right = Double(self.elements[2])!
 
             let result: Double
-            switch operand {
-            case "+":
+
+            if operand == "+" {
                 result = self.add(left, right)
-            case "-":
+            } else if operand == "-" {
                 result = self.subtract(left, right)
-            default:
-                fatalError("Opérateur inconnu !")
+            } else {
+                return "Opérateur inconnu !"
             }
 
             self.elements = Array(self.elements.dropFirst(3))
             self.elements.insert(String(result), at: 0)
         }
-
         return "= \(self.elements.first ?? "Erreur")"
     }
-    
 }

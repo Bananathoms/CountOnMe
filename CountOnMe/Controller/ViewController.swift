@@ -25,6 +25,13 @@ class ViewController: UIViewController {
         self.calculatorModel.viewController = self
     }
     
+    func showAlert(message: String) {
+        let alertVC = UIAlertController(title: "Erreur", message: message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        present(alertVC, animated: true, completion: nil)
+    }
+
+    
     // View actions
     @IBAction func tappedNumberButton(_ sender: UIButton) {
         guard let numberText = sender.title(for: .normal) else {
@@ -56,34 +63,26 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tappedAdditionButton(_ sender: UIButton) {
-        if self.calculatorModel.canAddOperator(elements: self.elements) {
-            self.textView.text.append(" + ")
-        } else {
-            self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
-        }
+        self.displayButtonInput(input: " + ")
     }
     
     @IBAction func tappedSubstractionButton(_ sender: UIButton) {
-        if self.calculatorModel.canAddOperator(elements: self.elements) {
-            self.textView.text.append(" - ")
-        } else {
-            self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
-        }
+        self.displayButtonInput(input: " - ")
     }
     
     @IBAction func tappedMultiplicationButton(_ sender: UIButton) {
-        if self.calculatorModel.canAddOperator(elements: self.elements) {
-            self.textView.text.append(" * ")
-        } else {
-            self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
-        }
+        self.displayButtonInput(input: " * ")
     }
 
     @IBAction func tappedDivisionButton(_ sender: UIButton) {
+        self.displayButtonInput(input: " / ")
+    }
+    
+    func displayButtonInput(input: String) {
         if self.calculatorModel.canAddOperator(elements: self.elements) {
-            self.textView.text.append(" / ")
+            self.textView.text.append(input)
         } else {
-            self.calculatorModel.showAlert(message: "Un operateur est déja mis !")
+            self.showAlert(message: "Un operateur est déja mis !")
         }
     }
 
@@ -103,12 +102,12 @@ class ViewController: UIViewController {
         }
 
         guard isCorrect else {
-            self.calculatorModel.showAlert(message: "Entrez une expression correcte !")
+            self.showAlert(message: "Entrez une expression correcte !")
             return
         }
 
         guard haveEnoughElements else {
-            self.calculatorModel.showAlert(message: "Démarrez un nouveau calcul !")
+            self.showAlert(message: "Démarrez un nouveau calcul !")
             return
         }
         

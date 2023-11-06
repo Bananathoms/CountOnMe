@@ -11,14 +11,6 @@ import XCTest
 
 class SimpleCalcTests: XCTestCase {
     
-    class MockViewController: UIViewController {
-        var presentedAlert: UIAlertController?
-        
-        override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
-            presentedAlert = viewControllerToPresent as? UIAlertController
-        }
-    }
-    
     var calculatorModel: CalculatorModel!
     
     override func setUp() {
@@ -30,26 +22,7 @@ class SimpleCalcTests: XCTestCase {
         self.calculatorModel = nil
         super.tearDown()
     }
-    
-    func testShowAlert() {
-        let mockViewController = MockViewController()
-        
-        self.calculatorModel.viewController = mockViewController
-        
-        let message = "This is a test message."
-        self.calculatorModel.showAlert(message: message)
-        
-        XCTAssertNotNil(mockViewController.presentedAlert, "An alert should have been presented")
-        XCTAssertEqual(mockViewController.presentedAlert?.message, message, "Alert message should match")
-        XCTAssertEqual(mockViewController.presentedAlert?.title, "Erreur", "Alert title should match")
-    }
-    
-    func testShowAlertWithoutViewController() {
-        let message = "This is a test message."
-        self.calculatorModel.showAlert(message: message)
-        XCTAssertNil(calculatorModel.viewController, "No alert should be presented when viewController is not set")
-    }
-    
+
     func testAddition() {
         let result = self.calculatorModel.add(3.0, 4.0)
         XCTAssertEqual(result, 7.0, "L'addition de 3.0 et 4.0 devrait être égale à 7.0")
