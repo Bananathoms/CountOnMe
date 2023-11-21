@@ -94,13 +94,17 @@ class CalculatorModel {
     func calculateExpression(expression: String) -> String {
         self.elements = expression.split(separator: " ").map { "\($0)" }
 
+        guard isExpressionCorrect(elements: self.elements), doesExpressionHaveEnoughElements(elements: self.elements) else {
+            return "Erreur : Expression invalide"
+        }
+        
         while self.elements.contains("*") || self.elements.contains("/") {
-            if let index = self.elements.firstIndex(where: { $0 == "*" || $0 == "/" }) {
-                let left = Double(self.elements[index - 1])!
-                let operand = self.elements[index]
-                let right = Double(self.elements[index + 1])!
+            if let index = self.elements.firstIndex(where: { $0 == "*" || $0 == "/" }),
+               let left = Double(self.elements[index - 1]),
+               let right = Double(self.elements[index + 1]) {
 
-                let result: Double
+                let operand = self.elements[index]
+                var result: Double?
 
                 if operand == "*" {
                     result = self.multiply(left, right)
@@ -114,29 +118,34 @@ class CalculatorModel {
                     return "Opérateur inconnu !"
                 }
 
-                self.elements[index - 1] = String(result)
-                self.elements.remove(at: index)
-                self.elements.remove(at: index)
+                if let result = result {
+                    self.elements[index - 1] = String(result)
+                    self.elements.remove(at: index)
+                    self.elements.remove(at: index)
+                }
             }
         }
 
         while self.elements.count > 1 {
-            let left = Double(self.elements[0])!
-            let operand = self.elements[1]
-            let right = Double(self.elements[2])!
+            if let left = Double(self.elements[0]),
+               let right = Double(self.elements[2]) {
 
-            let result: Double
+                let operand = self.elements[1]
+                var result: Double?
 
-            if operand == "+" {
-                result = self.add(left, right)
-            } else if operand == "-" {
-                result = self.subtract(left, right)
-            } else {
-                return "Opérateur inconnu !"
+                if operand == "+" {
+                    result = self.add(left, right)
+                } else if operand == "-" {
+                    result = self.subtract(left, right)
+                } else {
+                    return "Opérateur inconnu !"
+                }
+
+                if let result = result {
+                    self.elements = Array(self.elements.dropFirst(3))
+                    self.elements.insert(String(result), at: 0)
+                }
             }
-
-            self.elements = Array(self.elements.dropFirst(3))
-            self.elements.insert(String(result), at: 0)
         }
         return "= \(self.elements.first ?? "Erreur")"
     }
