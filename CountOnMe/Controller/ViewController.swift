@@ -68,13 +68,19 @@ class ViewController: UIViewController, CalculatorModelDelegate {
         guard let operatorText = sender.title(for: .normal) else {
             return
         }
-
-        if self.calculatorModel.canAddOperator {
-            self.textView.text.append(" \(operatorText) ")
-            self.calculatorModel.expression = self.textView.text
-        } else {
+        
+        guard self.calculatorModel.canAddOperator else {
             self.showAlert(message: "Un operateur est déjà mis !")
+            return
         }
+        
+        if self.calculatorModel.doesExpressionHaveResult {
+            self.textView.text = ""
+            self.calculatorModel.expression = ""
+        }
+        
+        self.textView.text.append(" \(operatorText) ")
+        self.calculatorModel.expression = self.textView.text
     }
 
     ///  Handles the user interaction when the equal button is tapped, performing the calculation and updating the `textView` with the result or an error message based on the current expression's validity.
