@@ -13,6 +13,29 @@ class CalculatorModel {
     weak var delegate: CalculatorModelDelegate?
     var elements: [String] = []
     
+    var expression: String = "" {
+        didSet {
+            self.elements = self.expression.split(separator: " ").map { "\($0)" }
+        }
+    }
+    
+    /// Determines whether it's possible to add an operator to the given expression by checking if the last element is not already an operator.
+    var canAddOperator: Bool {
+        if let lastElement = elements.last {
+            return lastElement != "+" && lastElement != "-" && lastElement != "*" && lastElement != "/"
+        }
+        return false
+    }
+    
+    /// Checks if the given text represents an expression with a calculated result, indicated by the presence of the equal sign ('=').
+    var doesExpressionHaveResult: Bool {
+        return expression.firstIndex(of: "=") != nil
+    }
+
+    func isExpressionValid() -> Bool {
+        return isExpressionCorrect(elements: elements) && doesExpressionHaveEnoughElements(elements: elements)
+    }
+    
     /// Checks whether the given expression is correct by verifying that the last element in the expression array is not an operator.
     /// - Parameter elements: The elements of the expression to be checked.
     /// - Returns: `true` if the expression is correct; otherwise, it returns `false`.
@@ -28,23 +51,6 @@ class CalculatorModel {
     /// - Returns: `true` if the expression has three or more elements, indicating it has enough for a valid operation; otherwise, it returns `false`.
     func doesExpressionHaveEnoughElements(elements: [String]) -> Bool {
         return elements.count >= 3
-    }
-    
-    /// Determines whether it's possible to add an operator to the given expression by checking if the last element is not already an operator.
-    /// - Parameter elements: Determines whether it's possible to add an operator to the given expression by checking if the last element is not already an operator.
-    /// - Returns: true` if an operator can be added (the last element is not an operator); otherwise, it returns `false`.
-    func canAddOperator(elements: [String]) -> Bool {
-        if let lastElement = elements.last {
-            return lastElement != "+" && lastElement != "-" && lastElement != "*" && lastElement != "/"
-        }
-        return false
-    }
-    
-    /// Checks if the given text represents an expression with a calculated result, indicated by the presence of the equal sign ('=').
-    /// - Parameter text: The text to be examined for the presence of the equal sign.
-    /// - Returns: `true` if the text contains an equal sign, signifying the presence of a calculated result; otherwise, it returns `false`.
-    func doesExpressionHaveResult(text: String) -> Bool {
-        return text.firstIndex(of: "=") != nil
     }
     
     /// Performs addition of two numbers and returns the result.
