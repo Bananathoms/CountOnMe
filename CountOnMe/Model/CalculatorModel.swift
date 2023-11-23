@@ -7,11 +7,10 @@
 //
 
 import Foundation
-import UIKit
 
 class CalculatorModel {
     
-    var viewController: UIViewController?
+    weak var delegate: CalculatorModelDelegate?
     var elements: [String] = []
     
     /// Checks whether the given expression is correct by verifying that the last element in the expression array is not an operator.
@@ -150,3 +149,8 @@ class CalculatorModel {
         return "= \(self.elements.first ?? "Erreur")"
     }
 }
+
+protocol CalculatorModelDelegate: AnyObject {
+    func calculatorModel(_ calculatorModel: CalculatorModel, didEncounterError message: String)
+}
+

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CalculatorModelDelegate {
     
     let calculatorModel = CalculatorModel()
     
@@ -22,7 +22,11 @@ class ViewController: UIViewController {
     // View Life cycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.calculatorModel.viewController = self
+        self.calculatorModel.delegate = self
+    }
+    
+    func calculatorModel(_ calculatorModel: CalculatorModel, didEncounterError message: String) {
+        self.showAlert(message: message)
     }
     
     /// Displays an alert with a custom error message to inform the user about invalid inputs or operations.
