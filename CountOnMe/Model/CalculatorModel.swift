@@ -157,7 +157,7 @@ class CalculatorModel {
                   isNumberValid(tempElements[index - 1]), isNumberValid(tempElements[index + 1]),
                   let left = Double(tempElements[index - 1]),
                   let right = Double(tempElements[index + 1]) else {
-                delegate?.displayAlert(message: "Nombre non valide détecté")
+                delegate?.displayAlert(message: "Nombre non valide")
                 return ""
             }
             
@@ -189,7 +189,7 @@ class CalculatorModel {
             guard let left = Double(tempElements[0]),
                   let right = Double(tempElements[2]),
                   tempElements.count >= 3 else {
-                delegate?.displayAlert(message: "Expression non valide pour l'addition/soustraction")
+                delegate?.displayAlert(message: "Nombre non valide")
                 return ""
             }
             
