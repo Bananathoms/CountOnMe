@@ -72,7 +72,7 @@ class CalculatorModel {
     var doesExpressionHaveResult: Bool {
         return expression.firstIndex(of: "=") != nil
     }
-
+    
     func isExpressionValid() -> Bool {
         return isExpressionCorrect(elements: elements) && doesExpressionHaveEnoughElements(elements: elements)
     }
@@ -92,6 +92,11 @@ class CalculatorModel {
     /// - Returns: `true` if the expression has three or more elements, indicating it has enough for a valid operation; otherwise, it returns `false`.
     func doesExpressionHaveEnoughElements(elements: [String]) -> Bool {
         return elements.count >= 3
+    }
+    
+    func isNumberValid(_ numberString: String) -> Bool {
+        // Vérifie si la chaîne est un nombre valide et pas juste un point
+        return Double(numberString) != nil && numberString != "."
     }
     
     /// Performs addition of two numbers and returns the result.
@@ -139,58 +144,69 @@ class CalculatorModel {
     /// - Returns: A formatted string representing the result of the expression, including an equal sign ('=') at the beginning, or an error message if the expression is invalid or contains division by zero.
     func calculateExpression(expression: String) -> String {
         var tempElements = elements
-
-        guard isExpressionCorrect(elements: self.elements), doesExpressionHaveEnoughElements(elements: self.elements) else {
-            return "Erreur : Expression invalide"
+        
+        guard isExpressionCorrect(elements: tempElements), doesExpressionHaveEnoughElements(elements: tempElements) else {
+            delegate?.displayAlert(message: "Expression invalide")
+            return ""
         }
         
-        while tempElements.contains("*") || tempElements.contains("/") {
-            if let index = tempElements.firstIndex(where: { $0 == "*" || $0 == "/" }),
-               let left = Double(tempElements[index - 1]),
-               let right = Double(tempElements[index + 1]) {
-
-                let operand = tempElements[index]
-                var result: Double?
-
-                if operand == "*" {
-                    result = self.multiply(left, right)
-                } else if operand == "/" {
-                    if right != 0 {
-                        result = self.divide(left, right)
-                    } else {
-                        return "Erreur : Division par zéro"
-                    }
-                } else {
-                    return "Opérateur inconnu !"
+        while let index = tempElements.firstIndex(where: { $0 == "*" || $0 == "/" }) {
+            guard index > 0, index < tempElements.count - 1,
+                  isNumberValid(tempElements[index - 1]), isNumberValid(tempElements[index + 1]),
+                  let left = Double(tempElements[index - 1]),
+                  let right = Double(tempElements[index + 1]) else {
+                delegate?.displayAlert(message: "Nombre non valide détecté")
+                return ""
+            }
+            
+            let operand = tempElements[index]
+            var result: Double?
+            
+            switch operand {
+            case "*":
+                result = multiply(left, right)
+            case "/":
+                if right == 0 {
+                    delegate?.displayAlert(message: "Erreur : Division par zéro")
+                    return ""
                 }
-
-                if let result = result {
-                    tempElements[index - 1] = String(result)
-                    tempElements.remove(at: index)
-                    tempElements.remove(at: index)
-                }
+                result = divide(left, right)
+            default:
+                delegate?.displayAlert(message: "Opérateur inconnu !")
+                return ""
+            }
+            
+            if let result = result {
+                tempElements[index - 1] = String(result)
+                tempElements.remove(at: index + 1)
+                tempElements.remove(at: index)
             }
         }
-
+        
         while tempElements.count > 1 {
-            if let left = Double(tempElements[0]),
-               let right = Double(tempElements[2]) {
-
-                let operand = tempElements[1]
-                var result: Double?
-
-                if operand == "+" {
-                    result = self.add(left, right)
-                } else if operand == "-" {
-                    result = self.subtract(left, right)
-                } else {
-                    return "Opérateur inconnu !"
-                }
-
-                if let result = result {
-                    tempElements = Array(tempElements.dropFirst(3))
-                    tempElements.insert(String(result), at: 0)
-                }
+            guard let left = Double(tempElements[0]),
+                  let right = Double(tempElements[2]),
+                  tempElements.count >= 3 else {
+                delegate?.displayAlert(message: "Expression non valide pour l'addition/soustraction")
+                return ""
+            }
+            
+            let operand = tempElements[1]
+            var result: Double?
+            
+            switch operand {
+            case "+":
+                result = add(left, right)
+            case "-":
+                result = subtract(left, right)
+            default:
+                delegate?.displayAlert(message: "Opérateur inconnu !")
+                return ""
+            }
+            
+            if let result = result {
+                tempElements = Array(tempElements.dropFirst(3))
+                tempElements.insert(String(result), at: 0)
             }
         }
         return "= \(tempElements.first ?? "Erreur")"
