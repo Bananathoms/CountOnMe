@@ -11,12 +11,53 @@ import Foundation
 class CalculatorModel {
     
     weak var delegate: CalculatorModelDelegate?
-    var elements: [String] = []
+    var elements: [String] {
+        self.expression.split(separator: " ").map { "\($0)" }
+    }
     
     var expression: String = "" {
         didSet {
-            self.elements = self.expression.split(separator: " ").map { "\($0)" }
+            delegate?.updateDisplay(value: expression)
         }
+    }
+    
+    func tappedNumberButton(_ numberText: String) {
+        if doesExpressionHaveResult {
+            expression = ""
+        }
+        
+        expression.append(numberText)
+    }
+    
+    func tappedOperatorButton(_ mathOperator: String) {
+        guard canAddOperator else {
+            delegate?.displayAlert(message: "Un opérateur est déjà présent")
+            return
+        }
+        
+        if doesExpressionHaveResult {
+            expression = ""
+        }
+        
+        expression.append(" \(mathOperator) ")
+    }
+    
+    func resetCalcul() {
+        expression.removeAll()
+    }
+    
+    func tappedBackButton() {
+        if !expression.isEmpty {
+            expression.removeLast()
+        }
+    }
+    
+    func tappedEqualButton() {
+        guard isExpressionValid() else {
+            delegate?.displayAlert(message: "Expression non valide")
+            return
+        }
+        expression = calculateExpression(expression: expression)
     }
     
     /// Determines whether it's possible to add an operator to the given expression by checking if the last element is not already an operator.
@@ -97,18 +138,18 @@ class CalculatorModel {
     /// - Parameter expression: The mathematical expression to be calculated, containing numbers and operators.
     /// - Returns: A formatted string representing the result of the expression, including an equal sign ('=') at the beginning, or an error message if the expression is invalid or contains division by zero.
     func calculateExpression(expression: String) -> String {
-        self.elements = expression.split(separator: " ").map { "\($0)" }
+        var tempElements = elements
 
         guard isExpressionCorrect(elements: self.elements), doesExpressionHaveEnoughElements(elements: self.elements) else {
             return "Erreur : Expression invalide"
         }
         
-        while self.elements.contains("*") || self.elements.contains("/") {
-            if let index = self.elements.firstIndex(where: { $0 == "*" || $0 == "/" }),
-               let left = Double(self.elements[index - 1]),
-               let right = Double(self.elements[index + 1]) {
+        while tempElements.contains("*") || tempElements.contains("/") {
+            if let index = tempElements.firstIndex(where: { $0 == "*" || $0 == "/" }),
+               let left = Double(tempElements[index - 1]),
+               let right = Double(tempElements[index + 1]) {
 
-                let operand = self.elements[index]
+                let operand = tempElements[index]
                 var result: Double?
 
                 if operand == "*" {
@@ -124,18 +165,18 @@ class CalculatorModel {
                 }
 
                 if let result = result {
-                    self.elements[index - 1] = String(result)
-                    self.elements.remove(at: index)
-                    self.elements.remove(at: index)
+                    tempElements[index - 1] = String(result)
+                    tempElements.remove(at: index)
+                    tempElements.remove(at: index)
                 }
             }
         }
 
-        while self.elements.count > 1 {
-            if let left = Double(self.elements[0]),
-               let right = Double(self.elements[2]) {
+        while tempElements.count > 1 {
+            if let left = Double(tempElements[0]),
+               let right = Double(tempElements[2]) {
 
-                let operand = self.elements[1]
+                let operand = tempElements[1]
                 var result: Double?
 
                 if operand == "+" {
@@ -147,16 +188,16 @@ class CalculatorModel {
                 }
 
                 if let result = result {
-                    self.elements = Array(self.elements.dropFirst(3))
-                    self.elements.insert(String(result), at: 0)
+                    tempElements = Array(tempElements.dropFirst(3))
+                    tempElements.insert(String(result), at: 0)
                 }
             }
         }
-        return "= \(self.elements.first ?? "Erreur")"
+        return "= \(tempElements.first ?? "Erreur")"
     }
 }
 
 protocol CalculatorModelDelegate: AnyObject {
-    func calculatorModel(_ calculatorModel: CalculatorModel, didEncounterError message: String)
+    func updateDisplay(value: String)
+    func displayAlert(message: String)
 }
-

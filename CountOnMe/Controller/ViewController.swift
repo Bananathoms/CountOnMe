@@ -36,30 +36,19 @@ class ViewController: UIViewController, CalculatorModelDelegate {
         guard let numberText = sender.title(for: .normal) else {
             return
         }
-        
-        if self.calculatorModel.doesExpressionHaveResult {
-            self.textView.text = ""
-            self.calculatorModel.expression = ""
-        }
-        
-        self.textView.text.append(numberText)
-        self.calculatorModel.expression = self.textView.text
+        calculatorModel.tappedNumberButton(numberText)
     }
     
     /// Clears the content of the `textView`, resetting the expression.
     /// - Parameter sender: The button that triggers the clear action.
     @IBAction func tappedClearButton(_ sender: UIButton) {
-        self.textView.text = ""
-        self.calculatorModel.expression = ""
+        calculatorModel.resetCalcul()
     }
     
     /// Handles the user interaction when the back button is tapped, removing the last character from the current expression in the `textView`.
     /// - Parameter sender: The button representing the back button.
     @IBAction func tappedBackButton(_ sender: UIButton) {
-        if !self.textView.text.isEmpty {
-            self.textView.text.removeLast()
-            self.calculatorModel.expression = self.textView.text
-        }
+        calculatorModel.tappedBackButton()
     }
     
     ///  Handles the user interaction when the equal button is tapped, performing the calculation and updating the `textView` with the result or an error message based on the current expression's validity.
@@ -68,37 +57,22 @@ class ViewController: UIViewController, CalculatorModelDelegate {
         guard let operatorText = sender.title(for: .normal) else {
             return
         }
-        
-        guard self.calculatorModel.canAddOperator else {
-            self.showAlert(message: "Un operateur est déjà mis !")
-            return
-        }
-        
-        if self.calculatorModel.doesExpressionHaveResult {
-            self.textView.text = ""
-            self.calculatorModel.expression = ""
-        }
-        
-        self.textView.text.append(" \(operatorText) ")
-        self.calculatorModel.expression = self.textView.text
+        calculatorModel.tappedOperatorButton(operatorText)
     }
 
     ///  Handles the user interaction when the equal button is tapped, performing the calculation and updating the `textView` with the result or an error message based on the current expression's validity.
     /// - Parameter sender: The button representing the equal button.
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-        guard self.calculatorModel.isExpressionValid() else {
-            self.showAlert(message: "Expression invalide")
-            return
-        }
-
-        let expression = self.textView.text ?? ""
-        let result = self.calculatorModel.calculateExpression(expression: expression)
-        self.textView.text = result
+        calculatorModel.tappedEqualButton()
     }
 
     // CalculatorModelDelegate Methods
-    func calculatorModel(_ calculatorModel: CalculatorModel, didEncounterError message: String) {
-        self.showAlert(message: message)
+    func updateDisplay(value: String) {
+        textView.text = value
+    }
+    
+    func displayAlert(message: String) {
+        showAlert(message: message)
     }
 }
 
