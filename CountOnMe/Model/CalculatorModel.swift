@@ -36,7 +36,9 @@ class CalculatorModel {
         }
         
         if doesExpressionHaveResult {
-            expression = ""
+            if let result = expression.split(separator: "=").first {
+                expression = String(result).trimmingCharacters(in: .whitespaces)
+            }
         }
         
         expression.append(" \(mathOperator) ")
